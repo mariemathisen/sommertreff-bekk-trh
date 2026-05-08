@@ -255,23 +255,51 @@ export function HeroSection() {
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-0 z-40">
-        <Image
-          src="/poengoversikt.png"
-          alt=""
-          aria-hidden
-          width={220}
-          height={220}
-          className="absolute right-[8%] top-[10%] h-auto w-[clamp(100px,13vw,220px)]"
-        />
-        <Image
-          src="/dagensleker.png"
-          alt=""
-          aria-hidden
-          width={220}
-          height={220}
-          className="absolute bottom-[34%] left-[12%] h-auto w-[clamp(100px,13vw,220px)]"
-        />
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-40 h-screen overflow-hidden">
+        <div
+          className="group pointer-events-auto absolute"
+          style={{ right: 'clamp(24px, 8vw, 120px)', top: 'clamp(28px, 7vh, 72px)' }}
+        >
+          <div
+            className="relative overflow-hidden"
+            style={{ width: 'clamp(100px, 13vw, 220px)', height: 'clamp(100px, 13vw, 220px)' }}
+          >
+            <img
+              src="/poengoversikt.png"
+              alt=""
+              aria-hidden="true"
+              className="block h-full w-full object-contain transition-opacity duration-200 group-hover:opacity-0"
+            />
+            <img
+              src="/poengoversikt-hovered.png"
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 block h-full w-full object-contain opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+            />
+          </div>
+        </div>
+        <div
+          className="group pointer-events-auto absolute"
+          style={{ left: 'clamp(24px, 15vw, 260px)', top: 'clamp(560px, 58vh, 700px)' }}
+        >
+          <div
+            className="relative overflow-hidden"
+            style={{ width: 'clamp(100px, 13vw, 220px)', height: 'clamp(100px, 13vw, 220px)' }}
+          >
+            <img
+              src="/dagensleker.png"
+              alt=""
+              aria-hidden="true"
+              className="block h-full w-full object-contain transition-opacity duration-200 group-hover:opacity-0"
+            />
+            <img
+              src="/dagensleker-hovered.png"
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 block h-full w-full object-contain opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+            />
+          </div>
+        </div>
       </div>
 
       <div className="relative z-10 px-4 pt-64 sm:pt-72">
@@ -281,7 +309,7 @@ export function HeroSection() {
           width={220}
           height={418}
           priority
-          className="mx-auto block h-auto w-full max-w-[220px]"
+          className="mx-auto block h-auto w-full max-w-55"
         />
       </div>
       </section>

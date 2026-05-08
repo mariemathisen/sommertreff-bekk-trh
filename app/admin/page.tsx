@@ -71,8 +71,9 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 px-4 py-10">
+    <div className="min-h-screen bg-[#d6e8f5] px-4 py-10">
       <div className="max-w-lg mx-auto space-y-10">
+
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-zinc-900">Admin</h1>
           <Link href="/" className="text-sm text-blue-600 hover:underline">

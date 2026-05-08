@@ -255,6 +255,25 @@ export function HeroSection() {
         </div>
       </div>
 
+      <div className="pointer-events-none absolute inset-0 z-40">
+        <Image
+          src="/poengoversikt.png"
+          alt=""
+          aria-hidden
+          width={220}
+          height={220}
+          className="absolute right-[8%] top-[10%] h-auto w-[clamp(100px,13vw,220px)]"
+        />
+        <Image
+          src="/dagensleker.png"
+          alt=""
+          aria-hidden
+          width={220}
+          height={220}
+          className="absolute bottom-[34%] left-[12%] h-auto w-[clamp(100px,13vw,220px)]"
+        />
+      </div>
+
       <div className="relative z-10 px-4 pt-64 sm:pt-72">
         <Image
           src="/statue.png"

@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { MotionConfig, motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 
 type BirdConfig = {
   id: string
@@ -23,7 +23,6 @@ type BirdConfig = {
 
 type PatchImageProps = {
   name: string
-  hovered: boolean
 }
 
 const BIRDS: BirdConfig[] = [
@@ -189,17 +188,24 @@ const BIRDS: BirdConfig[] = [
   },
 ]
 
-function PatchImage({ name, hovered }: PatchImageProps) {
+function PatchImage({ name }: PatchImageProps) {
   return (
     <div className="relative overflow-hidden" style={{ width: 'clamp(100px, 13vw, 220px)', height: 'clamp(100px, 13vw, 220px)' }}>
-      {/* Browser-native img swap is more reliable here than layered optimized images. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={hovered ? `/${name}-hovered.png` : `/${name}.png`}
+        src={`/${name}.png`}
         alt=""
         aria-hidden="true"
         draggable={false}
-        className="block h-full w-full object-contain"
+        className="pointer-events-none block h-full w-full object-contain transition-opacity duration-150 group-hover:opacity-0"
+      />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`/${name}-hovered.png`}
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+        className="pointer-events-none absolute inset-0 block h-full w-full object-contain opacity-0 transition-opacity duration-150 group-hover:opacity-100"
       />
     </div>
   )
@@ -208,7 +214,6 @@ function PatchImage({ name, hovered }: PatchImageProps) {
 export function HeroSection() {
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
-  const [hoveredPatch, setHoveredPatch] = useState<string | null>(null)
   const smoothX = useSpring(mouseX, { stiffness: 45, damping: 18, mass: 0.6 })
   const smoothY = useSpring(mouseY, { stiffness: 45, damping: 18, mass: 0.6 })
 
@@ -218,8 +223,8 @@ export function HeroSection() {
 
   useEffect(() => {
     for (const src of ['/poengoversikt-hovered.png', '/dagensleker-hovered.png']) {
-      const preloadedImage = new window.Image()
-      preloadedImage.src = src
+      const image = new window.Image()
+      image.src = src
     }
   }, [])
 
@@ -293,26 +298,22 @@ export function HeroSection() {
           </div>
         </div>
 
-        <div className="absolute inset-x-0 top-0 z-40 h-screen overflow-hidden">
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-40 h-screen overflow-hidden">
           <Link
             href="/poengoversikt"
             aria-label="Gå til poengoversikt"
-            className="pointer-events-auto absolute"
+            className="group pointer-events-auto absolute z-50 block"
             style={{ right: 'clamp(24px, 8vw, 120px)', top: 'clamp(28px, 7vh, 72px)' }}
-            onPointerEnter={() => setHoveredPatch('poengoversikt')}
-            onPointerLeave={() => setHoveredPatch((current) => (current === 'poengoversikt' ? null : current))}
           >
-            <PatchImage name="poengoversikt" hovered={hoveredPatch === 'poengoversikt'} />
+            <PatchImage name="poengoversikt" />
           </Link>
           <button
             type="button"
             aria-label="Dagens utfordringer"
-            className="pointer-events-auto absolute cursor-pointer"
+            className="group pointer-events-auto absolute z-50 block cursor-pointer"
             style={{ left: 'clamp(24px, 15vw, 260px)', top: 'clamp(560px, 58vh, 700px)' }}
-            onPointerEnter={() => setHoveredPatch('dagensleker')}
-            onPointerLeave={() => setHoveredPatch((current) => (current === 'dagensleker' ? null : current))}
           >
-            <PatchImage name="dagensleker" hovered={hoveredPatch === 'dagensleker'} />
+            <PatchImage name="dagensleker" />
           </button>
         </div>
         <div className="relative z-10 px-4 pt-64 sm:pt-72">

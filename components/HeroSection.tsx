@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { MotionConfig, motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion'
 import { useMemo } from 'react'
 
@@ -256,7 +257,9 @@ export function HeroSection() {
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 top-0 z-40 h-screen overflow-hidden">
-        <div
+        <Link
+          href="/poengoversikt"
+          aria-label="Gå til poengoversikt"
           className="group pointer-events-auto absolute"
           style={{ right: 'clamp(24px, 8vw, 120px)', top: 'clamp(28px, 7vh, 72px)' }}
         >
@@ -277,7 +280,7 @@ export function HeroSection() {
               className="absolute inset-0 block h-full w-full object-contain opacity-0 transition-opacity duration-200 group-hover:opacity-100"
             />
           </div>
-        </div>
+        </Link>
         <div
           className="group pointer-events-auto absolute"
           style={{ left: 'clamp(24px, 15vw, 260px)', top: 'clamp(560px, 58vh, 700px)' }}

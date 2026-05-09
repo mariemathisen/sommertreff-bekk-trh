@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { MotionConfig, motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 type BirdConfig = {
   id: string
@@ -185,6 +185,8 @@ const BIRDS: BirdConfig[] = [
 ]
 
 export function HeroSection() {
+  const [isScoreHovered, setIsScoreHovered] = useState(false)
+  const [isChallengesHovered, setIsChallengesHovered] = useState(false)
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
   const smoothX = useSpring(mouseX, { stiffness: 45, damping: 18, mass: 0.6 })
@@ -193,128 +195,163 @@ export function HeroSection() {
   const overlayTransform = useMotionTemplate`translate3d(${smoothX}px, ${smoothY}px, 0)`
 
   const birds = useMemo(() => BIRDS, [])
+  const showScoreHover = isScoreHovered
+  const showChallengesHover = isChallengesHovered
 
   return (
     <MotionConfig reducedMotion="never">
       <section
-      className="relative isolate min-h-screen overflow-hidden bg-[#d6e8f5]"
-      onMouseMove={(event) => {
-        const bounds = event.currentTarget.getBoundingClientRect()
-        const viewportHeight = window.innerHeight || bounds.height
-        const relativeX = (event.clientX - bounds.left) / bounds.width - 0.5
-        const relativeY = event.clientY / viewportHeight - 0.5
-        mouseX.set(relativeX * 8)
-        mouseY.set(relativeY * 8)
-      }}
-      onMouseLeave={() => {
-        mouseX.set(0)
-        mouseY.set(0)
-      }}
+        className="relative isolate min-h-screen overflow-hidden bg-[#d6e8f5]"
+        onMouseMove={(event) => {
+          const bounds = event.currentTarget.getBoundingClientRect()
+          const viewportHeight = window.innerHeight || bounds.height
+          const relativeX = (event.clientX - bounds.left) / bounds.width - 0.5
+          const relativeY = event.clientY / viewportHeight - 0.5
+          mouseX.set(relativeX * 8)
+          mouseY.set(relativeY * 8)
+        }}
+        onMouseLeave={() => {
+          mouseX.set(0)
+          mouseY.set(0)
+        }}
       >
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-30 h-screen overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(80%_58%_at_50%_12%,rgba(255,255,255,0.6),rgba(255,255,255,0))]" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-30 h-screen overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(80%_58%_at_50%_12%,rgba(255,255,255,0.6),rgba(255,255,255,0))]" />
 
-        <div className="relative mx-auto flex w-full max-w-7xl flex-col items-center px-4 pt-16 text-center sm:px-8 sm:pt-20">
-          <div className="w-fit text-left">
-            <p className="text-3xl font-medium leading-none text-[#0f172a] sm:text-4xl">Bekk</p>
-            <h1 className="mt-4 text-5xl font-black leading-[0.95] tracking-tight text-[#0b1525] sm:text-7xl">
-              Trondheims
-              <br />
-              Sommer<span className="font-serif italic font-normal text-[#d8452e]">leker</span>
-            </h1>
+          <div className="relative mx-auto flex w-full max-w-7xl flex-col items-center px-4 pt-16 text-center sm:px-8 sm:pt-20">
+            <div className="w-fit text-left">
+              <p className="text-3xl font-medium leading-none text-[#0f172a] sm:text-4xl">Bekk</p>
+              <h1 className="mt-4 text-5xl font-black leading-[0.95] tracking-tight text-[#0b1525] sm:text-7xl">
+                Trondheims
+                <br />
+                Sommer<span className="font-serif italic font-normal text-[#d8452e]">leker</span>
+              </h1>
+            </div>
           </div>
-        </div>
 
-        <div className="absolute inset-x-0 top-[36%] h-[52%] sm:top-[32%] sm:h-[56%]">
-          <motion.div className="relative h-full w-full" style={{ transform: overlayTransform, willChange: 'transform' }}>
-          {birds.map((bird) => (
-            <motion.div
-              key={bird.id}
-              className="pointer-events-none absolute"
-              style={{ left: bird.baseX, top: bird.baseY, zIndex: bird.z, willChange: 'transform' }}
-              animate={{ x: bird.driftX, y: bird.bobY, rotate: bird.rotate }}
-              transition={{
-                duration: bird.duration,
-                delay: bird.delay,
-                ease: 'easeInOut',
-                repeat: Number.POSITIVE_INFINITY,
-                repeatType: 'loop',
-              }}
-            >
-              <Image
-                src={bird.src}
-                alt=""
-                aria-hidden
-                width={bird.width}
-                height={Math.round(bird.width * 0.72)}
-                className={`h-auto select-none ${bird.blurClass ?? ''}`}
-                style={{ width: `clamp(${Math.round(bird.width * 0.7)}px, ${bird.width / 12}vw, ${bird.width}px)`, opacity: bird.opacity }}
-              />
+          <div className="absolute inset-x-0 top-[36%] h-[52%] sm:top-[32%] sm:h-[56%]">
+            <motion.div className="relative h-full w-full" style={{ transform: overlayTransform, willChange: 'transform' }}>
+              {birds.map((bird) => (
+                <motion.div
+                  key={bird.id}
+                  className="pointer-events-none absolute"
+                  style={{ left: bird.baseX, top: bird.baseY, zIndex: bird.z, willChange: 'transform' }}
+                  animate={{ x: bird.driftX, y: bird.bobY, rotate: bird.rotate }}
+                  transition={{
+                    duration: bird.duration,
+                    delay: bird.delay,
+                    ease: 'easeInOut',
+                    repeat: Number.POSITIVE_INFINITY,
+                    repeatType: 'loop',
+                  }}
+                >
+                  <div
+                    className="relative"
+                    style={{
+                      width: `clamp(${Math.round(bird.width * 0.7)}px, ${bird.width / 12}vw, ${bird.width}px)`,
+                      aspectRatio: '1 / 0.72',
+                      opacity: bird.opacity,
+                    }}
+                  >
+                    <Image
+                      src={bird.src}
+                      alt=""
+                      aria-hidden
+                      fill
+                      sizes={`${bird.width}px`}
+                      className={`object-contain select-none ${bird.blurClass ?? ''}`}
+                    />
+                  </div>
+                </motion.div>
+              ))}
             </motion.div>
-          ))}
-          </motion.div>
-        </div>
-      </div>
-
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-40 h-screen overflow-hidden">
-        <Link
-          href="/poengoversikt"
-          aria-label="Gå til poengoversikt"
-          className="group pointer-events-auto absolute"
-          style={{ right: 'clamp(24px, 8vw, 120px)', top: 'clamp(28px, 7vh, 72px)' }}
-        >
-          <div
-            className="relative overflow-hidden"
-            style={{ width: 'clamp(100px, 13vw, 220px)', height: 'clamp(100px, 13vw, 220px)' }}
-          >
-            <img
-              src="/poengoversikt.png"
-              alt=""
-              aria-hidden="true"
-              className="block h-full w-full object-contain transition-opacity duration-200 group-hover:opacity-0"
-            />
-            <img
-              src="/poengoversikt-hovered.png"
-              alt=""
-              aria-hidden="true"
-              className="absolute inset-0 block h-full w-full object-contain opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-            />
-          </div>
-        </Link>
-        <div
-          className="group pointer-events-auto absolute"
-          style={{ left: 'clamp(24px, 15vw, 260px)', top: 'clamp(560px, 58vh, 700px)' }}
-        >
-          <div
-            className="relative overflow-hidden"
-            style={{ width: 'clamp(100px, 13vw, 220px)', height: 'clamp(100px, 13vw, 220px)' }}
-          >
-            <img
-              src="/dagensleker.png"
-              alt=""
-              aria-hidden="true"
-              className="block h-full w-full object-contain transition-opacity duration-200 group-hover:opacity-0"
-            />
-            <img
-              src="/dagensleker-hovered.png"
-              alt=""
-              aria-hidden="true"
-              className="absolute inset-0 block h-full w-full object-contain opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-            />
           </div>
         </div>
-      </div>
 
-      <div className="relative z-10 px-4 pt-64 sm:pt-72">
-        <Image
-          src="/statue.png"
-          alt="Statue"
-          width={220}
-          height={418}
-          priority
-          className="mx-auto block h-auto w-full max-w-55"
-        />
-      </div>
+        <div className="absolute inset-x-0 top-0 z-40 h-screen overflow-hidden">
+          <Link
+            href="/poengoversikt"
+            aria-label="Gå til poengoversikt"
+            className="pointer-events-auto absolute"
+            style={{ right: 'clamp(24px, 8vw, 120px)', top: 'clamp(28px, 7vh, 72px)' }}
+            onPointerEnter={() => setIsScoreHovered(true)}
+            onPointerLeave={() => setIsScoreHovered(false)}
+            onPointerDown={() => setIsScoreHovered(true)}
+            onPointerUp={() => setIsScoreHovered(false)}
+            onFocus={() => setIsScoreHovered(true)}
+            onBlur={() => setIsScoreHovered(false)}
+          >
+            <div
+              className="relative overflow-hidden"
+              style={{ width: 'clamp(100px, 13vw, 220px)', height: 'clamp(100px, 13vw, 220px)' }}
+            >
+              <img
+                src="/poengoversikt.png"
+                alt=""
+                aria-hidden="true"
+                className="block h-full w-full object-contain transition-opacity duration-200"
+                style={{ opacity: showScoreHover ? 0 : 1 }}
+              />
+              <img
+                src="/poengoversikt-hovered.png"
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 block h-full w-full object-contain transition-opacity duration-200"
+                style={{ opacity: showScoreHover ? 1 : 0 }}
+              />
+            </div>
+          </Link>
+          <button
+            type="button"
+            aria-label="Dagens utfordringer"
+            className="pointer-events-auto absolute"
+            style={{ left: 'clamp(24px, 15vw, 260px)', top: 'clamp(560px, 58vh, 700px)' }}
+            onPointerEnter={() => setIsChallengesHovered(true)}
+            onPointerLeave={() => setIsChallengesHovered(false)}
+            onPointerDown={() => setIsChallengesHovered(true)}
+            onPointerUp={() => setIsChallengesHovered(false)}
+            onFocus={() => setIsChallengesHovered(true)}
+            onBlur={() => setIsChallengesHovered(false)}
+          >
+            <div
+              className="relative overflow-hidden"
+              style={{ width: 'clamp(100px, 13vw, 220px)', height: 'clamp(100px, 13vw, 220px)' }}
+            >
+              <img
+                src="/dagensleker.png"
+                alt=""
+                aria-hidden="true"
+                className="block h-full w-full object-contain transition-opacity duration-200"
+                style={{ opacity: showChallengesHover ? 0 : 1 }}
+              />
+              <img
+                src="/dagensleker-hovered.png"
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 block h-full w-full object-contain transition-opacity duration-200"
+                style={{ opacity: showChallengesHover ? 1 : 0 }}
+              />
+            </div>
+          </button>
+        </div>
+        <div className="relative z-10 px-4 pt-64 sm:pt-72">
+          <div
+            className="relative mx-auto"
+            style={{
+              width: 'clamp(160px,22vw,380px)',
+              aspectRatio: '1191 / 5322',
+            }}
+          >
+            <Image
+              src="/statue.png"
+              alt="Statue"
+              fill
+              priority
+              sizes="(max-width: 640px) 220px, 30vw"
+              className="object-contain"
+            />
+          </div>
+        </div>
       </section>
     </MotionConfig>
   )

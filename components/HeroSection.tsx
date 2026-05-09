@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { MotionConfig, motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
 type BirdConfig = {
   id: string
@@ -19,6 +19,10 @@ type BirdConfig = {
   driftX: [number, number, number, number, number]
   bobY: [number, number, number, number, number]
   rotate: [number, number, number, number, number]
+}
+
+type PatchImageProps = {
+  name: string
 }
 
 const BIRDS: BirdConfig[] = [
@@ -184,9 +188,26 @@ const BIRDS: BirdConfig[] = [
   },
 ]
 
+function PatchImage({ name }: PatchImageProps) {
+  return (
+    <div className="relative overflow-hidden" style={{ width: 'clamp(100px, 13vw, 220px)', height: 'clamp(100px, 13vw, 220px)' }}>
+      <img
+        src={`/${name}.png`}
+        alt=""
+        aria-hidden="true"
+        className="block h-full w-full object-contain opacity-100 transition-opacity duration-200 group-hover:opacity-0 group-focus-visible:opacity-0 group-active:opacity-0"
+      />
+      <img
+        src={`/${name}-hovered.png`}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 block h-full w-full object-contain opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100"
+      />
+    </div>
+  )
+}
+
 export function HeroSection() {
-  const [isScoreHovered, setIsScoreHovered] = useState(false)
-  const [isChallengesHovered, setIsChallengesHovered] = useState(false)
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
   const smoothX = useSpring(mouseX, { stiffness: 45, damping: 18, mass: 0.6 })
@@ -195,8 +216,6 @@ export function HeroSection() {
   const overlayTransform = useMotionTemplate`translate3d(${smoothX}px, ${smoothY}px, 0)`
 
   const birds = useMemo(() => BIRDS, [])
-  const showScoreHover = isScoreHovered
-  const showChallengesHover = isChallengesHovered
 
   return (
     <MotionConfig reducedMotion="never">
@@ -272,66 +291,18 @@ export function HeroSection() {
           <Link
             href="/poengoversikt"
             aria-label="Gå til poengoversikt"
-            className="pointer-events-auto absolute"
+            className="group pointer-events-auto absolute"
             style={{ right: 'clamp(24px, 8vw, 120px)', top: 'clamp(28px, 7vh, 72px)' }}
-            onPointerEnter={() => setIsScoreHovered(true)}
-            onPointerLeave={() => setIsScoreHovered(false)}
-            onPointerDown={() => setIsScoreHovered(true)}
-            onPointerUp={() => setIsScoreHovered(false)}
-            onFocus={() => setIsScoreHovered(true)}
-            onBlur={() => setIsScoreHovered(false)}
           >
-            <div
-              className="relative overflow-hidden"
-              style={{ width: 'clamp(100px, 13vw, 220px)', height: 'clamp(100px, 13vw, 220px)' }}
-            >
-              <img
-                src="/poengoversikt.png"
-                alt=""
-                aria-hidden="true"
-                className="block h-full w-full object-contain transition-opacity duration-200"
-                style={{ opacity: showScoreHover ? 0 : 1 }}
-              />
-              <img
-                src="/poengoversikt-hovered.png"
-                alt=""
-                aria-hidden="true"
-                className="absolute inset-0 block h-full w-full object-contain transition-opacity duration-200"
-                style={{ opacity: showScoreHover ? 1 : 0 }}
-              />
-            </div>
+            <PatchImage name="poengoversikt" />
           </Link>
           <button
             type="button"
             aria-label="Dagens utfordringer"
-            className="pointer-events-auto absolute"
+            className="group pointer-events-auto absolute"
             style={{ left: 'clamp(24px, 15vw, 260px)', top: 'clamp(560px, 58vh, 700px)' }}
-            onPointerEnter={() => setIsChallengesHovered(true)}
-            onPointerLeave={() => setIsChallengesHovered(false)}
-            onPointerDown={() => setIsChallengesHovered(true)}
-            onPointerUp={() => setIsChallengesHovered(false)}
-            onFocus={() => setIsChallengesHovered(true)}
-            onBlur={() => setIsChallengesHovered(false)}
           >
-            <div
-              className="relative overflow-hidden"
-              style={{ width: 'clamp(100px, 13vw, 220px)', height: 'clamp(100px, 13vw, 220px)' }}
-            >
-              <img
-                src="/dagensleker.png"
-                alt=""
-                aria-hidden="true"
-                className="block h-full w-full object-contain transition-opacity duration-200"
-                style={{ opacity: showChallengesHover ? 0 : 1 }}
-              />
-              <img
-                src="/dagensleker-hovered.png"
-                alt=""
-                aria-hidden="true"
-                className="absolute inset-0 block h-full w-full object-contain transition-opacity duration-200"
-                style={{ opacity: showChallengesHover ? 1 : 0 }}
-              />
-            </div>
+            <PatchImage name="dagensleker" />
           </button>
         </div>
         <div className="relative z-10 px-4 pt-64 sm:pt-72">

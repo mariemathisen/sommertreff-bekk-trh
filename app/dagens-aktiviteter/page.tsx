@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import ScrollBuntingGamesSection from '@/components/ScrollBuntingGamesSection'
 
 export default function DagensAktiviteterPage() {
   const backLabel = 'TILBAKE TIL FORSIDEN'
@@ -16,10 +17,12 @@ export default function DagensAktiviteterPage() {
   let unitCursor = 0
 
   return (
-    <main className="relative min-h-screen bg-[#d6e8f5] px-6 py-20 text-[#0b1525] sm:py-28">
+    <main className="relative min-h-screen overflow-x-clip bg-[#d6e8f5] px-6 py-20 pb-[3800px] text-[#0b1525] sm:py-28">
+      <ScrollBuntingGamesSection className="absolute inset-x-0 top-0 z-0" />
+
       <Link
         href="/"
-        className="group absolute left-4 top-4 inline-flex p-2 text-black"
+        className="group absolute left-4 top-4 z-20 inline-flex p-2 text-black"
         aria-label="Tilbake til forsiden"
       >
         <span className="relative h-[160px] w-[176px]">
@@ -58,14 +61,14 @@ export default function DagensAktiviteterPage() {
         </span>
       </Link>
 
-      <div className="mx-auto flex min-h-[70vh] w-full max-w-5xl flex-col items-center justify-center text-center">
+      <div className="absolute inset-x-0 top-[46vh] z-10 mx-auto w-full max-w-5xl -translate-y-1/2 text-center">
         <h1
           className="text-5xl font-black leading-none tracking-tight text-transparent sm:text-7xl md:text-8xl"
           style={{ WebkitTextStroke: '2px #d8452e' }}
         >
           Dagens utfordringer
         </h1>
-        <p className="mt-10 max-w-3xl text-xl leading-relaxed text-[#d8452e] sm:text-2xl">
+        <p className="mx-auto mt-10 max-w-3xl text-xl leading-relaxed text-[#d8452e] sm:text-2xl">
           Nysgjerrig på hva vi skal gjennom i dag? Ta en sniktitt her da vel
         </p>
       </div>

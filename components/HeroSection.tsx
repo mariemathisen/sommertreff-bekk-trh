@@ -307,20 +307,20 @@ export function HeroSection() {
           >
             <PatchImage name="poengoversikt" />
           </Link>
-          <button
-            type="button"
-            aria-label="Dagens utfordringer"
+          <Link
+            href="/dagens-aktiviteter"
+            aria-label="Gå til dagens aktiviteter"
             className="group pointer-events-auto absolute z-50 block cursor-pointer"
             style={{ left: 'clamp(24px, 15vw, 260px)', top: 'clamp(560px, 58vh, 700px)' }}
           >
             <PatchImage name="dagensleker" />
-          </button>
+          </Link>
         </div>
         <div className="relative z-10 px-4 pt-64 sm:pt-72">
           <div
             className="relative mx-auto"
             style={{
-              width: 'clamp(160px,22vw,380px)',
+              width: 'clamp(140px,18vw,310px)',
               aspectRatio: '1191 / 5322',
             }}
           >

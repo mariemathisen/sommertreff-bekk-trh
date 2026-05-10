@@ -1,3 +1,7 @@
+'use client'
+
+import { useEffect, useRef, useState } from 'react'
+
 const viewWidth = 1000
 const viewHeight = 4000
 
@@ -26,11 +30,112 @@ const mainRopePath = `
   .replace(/\s+/g, ' ')
   .trim()
 
+const pennantPalette = ['#7396dc', '#88aa88', '#ef9795', '#d85c34', '#e2b347']
+
+type PennantPlacement = {
+  x: number
+  y: number
+  angle: number
+  width: number
+  height: number
+  tipX: number
+  topJitter: number
+  windRotation: number
+  color: string
+  opacity: number
+  textureId: string
+}
+
+function fract(value: number) {
+  return value - Math.floor(value)
+}
+
+function noise(index: number, seed: number) {
+  return fract(Math.sin(index * 12.9898 + seed * 78.233) * 43758.5453123)
+}
+
+function centeredNoise(index: number, seed: number) {
+  return noise(index, seed) * 2 - 1
+}
+
+function normalizeAngle(angle: number) {
+  let normalized = angle
+
+  while (normalized <= -180) normalized += 360
+  while (normalized > 180) normalized -= 360
+
+  return normalized
+}
+
+function pennantColorAt(index: number) {
+  return pennantPalette[index % pennantPalette.length]
+}
+
 export default function ScrollBuntingGamesSection({
   className = '',
 }: {
   className?: string
 }) {
+  const pathRef = useRef<SVGPathElement>(null)
+  const [pennants, setPennants] = useState<PennantPlacement[]>([])
+
+  useEffect(() => {
+    const path = pathRef.current
+
+    if (!path) {
+      return
+    }
+
+    const totalLength = path.getTotalLength()
+    const nextPennants: PennantPlacement[] = []
+    let distance = 150
+    let index = 0
+
+    while (distance < totalLength - 82) {
+      const point = path.getPointAtLength(distance)
+      const nearPrev = path.getPointAtLength(Math.max(0, distance - 7))
+      const nearNext = path.getPointAtLength(Math.min(totalLength, distance + 7))
+      const farPrev = path.getPointAtLength(Math.max(0, distance - 30))
+      const farNext = path.getPointAtLength(Math.min(totalLength, distance + 30))
+      const dx = nearNext.x - nearPrev.x
+      const dy = nearNext.y - nearPrev.y
+      const angle = (Math.atan2(dy, dx) * 180) / Math.PI
+      const farAngle = (Math.atan2(farNext.y - farPrev.y, farNext.x - farPrev.x) * 180) / Math.PI
+      const curvature = Math.abs(normalizeAngle(farAngle - angle))
+      const width = 54 + noise(index, 1) * 6
+      const height = width * (1.42 + noise(index, 2) * 0.12)
+      const tipX = centeredNoise(index, 3) * width * 0.04
+      const colorIndex = index % pennantPalette.length
+
+      nextPennants.push({
+        x: point.x,
+        y: point.y,
+        angle,
+        width,
+        height,
+        tipX,
+        topJitter: centeredNoise(index, 6) * 1.1,
+        windRotation:
+          centeredNoise(index, 7) * 2.2 +
+          (noise(index, 8) > 0.88 ? centeredNoise(index, 9) * 2.4 : 0),
+        color: pennantColorAt(colorIndex),
+        opacity: 0.92 + noise(index, 11) * 0.04,
+        textureId: `pennant-texture-${index}`,
+      })
+
+      const spacing =
+        92 +
+        noise(index, 12) * 16 +
+        Math.min(curvature / 44, 1) * 18 +
+        (noise(index, 13) > 0.84 ? 14 : 0)
+
+      distance += spacing
+      index += 1
+    }
+
+    setPennants(nextPennants)
+  }, [])
+
   return (
     <section className={`relative w-full overflow-x-clip ${className}`}>
       <div className="relative w-full" style={{ height: `${viewHeight}px` }}>
@@ -40,15 +145,87 @@ export default function ScrollBuntingGamesSection({
           preserveAspectRatio="none"
           className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
         >
+          {pennants.map((pennant, index) => {
+            const leftBase = -pennant.width * 0.5
+            const rightBase = pennant.width * 0.5
+            const pennantPath = `
+              M ${leftBase} 0
+              Q ${leftBase + pennant.width * 0.3} ${-0.65 + pennant.topJitter * 0.14} ${rightBase} 0
+              L ${pennant.tipX} ${pennant.height}
+              Z
+            `
+              .replace(/\s+/g, ' ')
+              .trim()
+
+            return (
+              <g
+                key={`${pennant.x}-${pennant.y}-${index}`}
+                transform={`translate(${pennant.x} ${pennant.y}) rotate(${pennant.angle})`}
+              >
+                <defs>
+                  <pattern
+                    id={pennant.textureId}
+                    width="26"
+                    height="26"
+                    patternUnits="userSpaceOnUse"
+                    patternTransform={`rotate(${20 + (index % 2) * 4})`}
+                  >
+                    <rect width="26" height="26" fill="rgba(255,255,255,0.018)" />
+                    <path
+                      d="M -4 7 L 10 -3 M 2 16 L 20 3 M 11 28 L 28 12"
+                      stroke="rgba(255,255,255,0.14)"
+                      strokeWidth="1.2"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M -3 13 L 5 19 M 12 8 L 20 14"
+                      stroke="rgba(255,255,255,0.08)"
+                      strokeWidth="0.9"
+                      strokeLinecap="round"
+                    />
+                  </pattern>
+                </defs>
+                <g
+                  transform={`translate(${pennant.topJitter} 0) rotate(${pennant.windRotation})`}
+                >
+                  <path
+                    d={pennantPath}
+                    fill={pennant.color}
+                    fillOpacity={pennant.opacity}
+                    stroke="rgba(255, 255, 255, 0.08)"
+                    strokeWidth="0.45"
+                    strokeLinejoin="round"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                  <path
+                    d={pennantPath}
+                    fill={`url(#${pennant.textureId})`}
+                    fillOpacity="0.42"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                  <path
+                    d={`M ${leftBase * 0.78} 1 Q ${pennant.tipX * 0.12} ${pennant.height * 0.22} ${pennant.tipX * 0.02} ${pennant.height * 0.86}`}
+                    fill="none"
+                    stroke="rgba(255, 255, 255, 0.08)"
+                    strokeWidth="0.7"
+                    strokeLinecap="round"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                </g>
+              </g>
+            )
+          })}
+
           <path
+            ref={pathRef}
             d={mainRopePath}
             fill="none"
-            stroke="#111111"
-            strokeWidth="2.25"
+            stroke="#7687a2"
+            strokeWidth="2.05"
             strokeLinecap="round"
             strokeLinejoin="round"
             vectorEffect="non-scaling-stroke"
-            opacity="0.96"
+            opacity="0.94"
           />
         </svg>
       </div>

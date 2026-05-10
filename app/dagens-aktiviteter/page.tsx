@@ -61,7 +61,7 @@ export default function DagensAktiviteterPage() {
         </span>
       </Link>
 
-      <div className="absolute inset-x-0 top-[46vh] z-10 mx-auto w-full max-w-5xl -translate-y-1/2 text-center">
+      <div className="absolute left-1/2 top-[56vh] z-10 w-full max-w-5xl -translate-x-[58%] -translate-y-1/2 text-center">
         <h1
           className="text-5xl font-black leading-none tracking-tight text-transparent sm:text-7xl md:text-8xl"
           style={{ WebkitTextStroke: '2px #d8452e' }}

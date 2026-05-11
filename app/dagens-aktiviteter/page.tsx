@@ -17,7 +17,7 @@ export default function DagensAktiviteterPage() {
   let unitCursor = 0
 
   return (
-    <main className="relative min-h-screen overflow-x-clip bg-[#d6e8f5] px-6 py-20 pb-[3800px] text-[#0b1525] sm:py-28">
+    <main className="relative min-h-screen overflow-x-clip bg-[#d6e8f5] px-6 py-20 pb-1150 text-[#0b1525] sm:py-28">
       <ScrollBuntingGamesSection className="absolute inset-x-0 top-0 z-0" />
 
       <Link
@@ -61,14 +61,11 @@ export default function DagensAktiviteterPage() {
         </span>
       </Link>
 
-      <div className="absolute left-1/2 top-[56vh] z-10 w-full max-w-5xl -translate-x-[58%] -translate-y-1/2 text-center">
-        <h1
-          className="text-5xl font-black leading-none tracking-tight text-transparent sm:text-7xl md:text-8xl"
-          style={{ WebkitTextStroke: '2px #d8452e' }}
-        >
+      <div className="absolute left-1/2 top-[62vh] z-10 w-full max-w-5xl -translate-x-[58%] -translate-y-1/2 text-left">
+        <h1 className="text-5xl font-black leading-[0.95] tracking-tight text-[#0b1525] sm:text-7xl md:text-8xl">
           Dagens utfordringer
         </h1>
-        <p className="mx-auto mt-10 max-w-3xl text-xl leading-relaxed text-[#d8452e] sm:text-2xl">
+        <p className="mt-10 max-w-3xl text-xl leading-relaxed text-[#d8452e] sm:text-2xl">
           Nysgjerrig på hva vi skal gjennom i dag? Ta en sniktitt her da vel
         </p>
       </div>

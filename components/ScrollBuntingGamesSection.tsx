@@ -31,17 +31,24 @@ const mainRopePath = `
   .trim()
 
 const pennantPalette = ['#7396dc', '#88aa88', '#ef9795', '#d85c34', '#e2b347']
+const pennantWidth = 58
+const pennantHeight = 84
 
 type PennantPlacement = {
   x: number
   y: number
   angle: number
-  width: number
-  height: number
-  tipX: number
-  topJitter: number
   windRotation: number
-  angleOffset: number
+  attachOffset: number
+  swayRotation: number
+  swayDuration: number
+  swayDelay: number
+  floatX: number
+  floatY: number
+  floatDuration: number
+  floatDelay: number
+  centerX: number
+  centerY: number
   color: string
   opacity: number
   textureId: string
@@ -59,6 +66,10 @@ function centeredNoise(index: number, seed: number) {
   return noise(index, seed) * 2 - 1
 }
 
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max)
+}
+
 function normalizeAngle(angle: number) {
   let normalized = angle
 
@@ -70,6 +81,15 @@ function normalizeAngle(angle: number) {
 
 function pennantColorAt(index: number) {
   return pennantPalette[index % pennantPalette.length]
+}
+
+function hasPennantOverlap(candidate: { centerX: number; centerY: number }, pennants: PennantPlacement[]) {
+  return pennants.some((pennant) => {
+    const dx = candidate.centerX - pennant.centerX
+    const dy = candidate.centerY - pennant.centerY
+
+    return (dx / 62) ** 2 + (dy / 78) ** 2 < 1
+  })
 }
 
 export default function ScrollBuntingGamesSection({
@@ -93,9 +113,6 @@ export default function ScrollBuntingGamesSection({
     let index = 0
 
     while (distance < totalLength - 82) {
-      const width = 54 + noise(index, 1) * 6
-      const height = width * (1.42 + noise(index, 2) * 0.12)
-      const tipX = centeredNoise(index, 3) * width * 0.04
       const colorIndex = index % pennantPalette.length
       const basePoint = path.getPointAtLength(distance)
       const isFirstLoopRegion =
@@ -116,6 +133,17 @@ export default function ScrollBuntingGamesSection({
       const dx = nearNext.x - nearPrev.x
       const dy = nearNext.y - nearPrev.y
       const angle = (Math.atan2(dy, dx) * 180) / Math.PI
+      const naturalHang = clamp(
+        Math.sin(index * 0.58 + 1.1) * 9 +
+          Math.sin(index * 0.23 + 2.4) * 5 +
+          centeredNoise(index, 7) * 2.2,
+        -17,
+        17,
+      )
+      const windRotation = -angle + naturalHang
+      const hangRadians = (naturalHang * Math.PI) / 180
+      const centerX = point.x - Math.sin(hangRadians) * pennantHeight * 0.42
+      const centerY = point.y + Math.cos(hangRadians) * pennantHeight * 0.42
       const farAngle = (Math.atan2(farNext.y - farPrev.y, farNext.x - farPrev.x) * 180) / Math.PI
       const curvature = Math.abs(normalizeAngle(farAngle - angle))
       const shouldRenderPennant =
@@ -123,19 +151,22 @@ export default function ScrollBuntingGamesSection({
         !(isCrossingGreenRegion && colorIndex === 1) &&
         !(isLoopOverlapGreenRegion && colorIndex === 1)
 
-      if (shouldRenderPennant) {
+      if (shouldRenderPennant && !hasPennantOverlap({ centerX, centerY }, nextPennants)) {
         nextPennants.push({
           x: point.x,
           y: point.y,
           angle,
-          width,
-          height,
-          tipX,
-          topJitter: centeredNoise(index, 6) * 1.1,
-          windRotation:
-            centeredNoise(index, 7) * 2.2 +
-            (noise(index, 8) > 0.88 ? centeredNoise(index, 9) * 2.4 : 0),
-          angleOffset: 0,
+          windRotation,
+          attachOffset: centeredNoise(index, 6) * 1.8,
+          swayRotation: 1.8 + noise(index, 16) * 1.7,
+          swayDuration: 4.8 + noise(index, 17) * 2.8,
+          swayDelay: -noise(index, 18) * 6.5,
+          floatX: centeredNoise(index, 19) * 0.7,
+          floatY: centeredNoise(index, 20) * 0.9,
+          floatDuration: 5.8 + noise(index, 21) * 3.2,
+          floatDelay: -noise(index, 22) * 7.5,
+          centerX,
+          centerY,
           color: pennantColorAt(colorIndex),
           opacity: 0.92 + noise(index, 11) * 0.04,
           textureId: `pennant-texture-${index}`,
@@ -171,13 +202,36 @@ export default function ScrollBuntingGamesSection({
             </filter>
           </defs>
 
+          <path
+            d={mainRopePath}
+            fill="none"
+            stroke="#8b9bb3"
+            strokeWidth="3.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            vectorEffect="non-scaling-stroke"
+            opacity="0.18"
+            filter="url(#rope-soften)"
+          />
+          <path
+            ref={pathRef}
+            d={mainRopePath}
+            fill="none"
+            stroke="#7687a2"
+            strokeWidth="2.05"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            vectorEffect="non-scaling-stroke"
+            opacity="0.94"
+          />
+
           {pennants.map((pennant, index) => {
-            const leftBase = -pennant.width * 0.5
-            const rightBase = pennant.width * 0.5
+            const leftBase = -pennantWidth * 0.5
+            const rightBase = pennantWidth * 0.5
             const pennantPath = `
               M ${leftBase} 0
-              Q ${leftBase + pennant.width * 0.3} ${-0.65 + pennant.topJitter * 0.14} ${rightBase} 0
-              L ${pennant.tipX} ${pennant.height}
+              Q ${leftBase + pennantWidth * 0.3} -0.65 ${rightBase} 0
+              L 0 ${pennantHeight}
               Z
             `
               .replace(/\s+/g, ' ')
@@ -212,8 +266,32 @@ export default function ScrollBuntingGamesSection({
                   </pattern>
                 </defs>
                 <g
-                  transform={`translate(${pennant.topJitter} 0) rotate(${pennant.windRotation + pennant.angleOffset})`}
+                  transform={`translate(${pennant.attachOffset} 0) rotate(${pennant.windRotation})`}
                 >
+                  <animateTransform
+                    attributeName="transform"
+                    type="rotate"
+                    values={`${-pennant.swayRotation} 0 0; ${pennant.swayRotation} 0 0; ${-pennant.swayRotation} 0 0`}
+                    dur={`${pennant.swayDuration}s`}
+                    begin={`${pennant.swayDelay}s`}
+                    repeatCount="indefinite"
+                    additive="sum"
+                    calcMode="spline"
+                    keyTimes="0;0.5;1"
+                    keySplines="0.42 0 0.58 1;0.42 0 0.58 1"
+                  />
+                  <animateTransform
+                    attributeName="transform"
+                    type="translate"
+                    values={`0 0; ${pennant.floatX} ${pennant.floatY}; 0 0`}
+                    dur={`${pennant.floatDuration}s`}
+                    begin={`${pennant.floatDelay}s`}
+                    repeatCount="indefinite"
+                    additive="sum"
+                    calcMode="spline"
+                    keyTimes="0;0.5;1"
+                    keySplines="0.45 0 0.55 1;0.45 0 0.55 1"
+                  />
                   <path
                     d={pennantPath}
                     fill={pennant.color}
@@ -230,7 +308,7 @@ export default function ScrollBuntingGamesSection({
                     vectorEffect="non-scaling-stroke"
                   />
                   <path
-                    d={`M ${leftBase * 0.78} 1 Q ${pennant.tipX * 0.12} ${pennant.height * 0.22} ${pennant.tipX * 0.02} ${pennant.height * 0.86}`}
+                    d={`M ${leftBase * 0.78} 1 Q 0 ${pennantHeight * 0.28} 0 ${pennantHeight * 0.86}`}
                     fill="none"
                     stroke="rgba(255, 255, 255, 0.08)"
                     strokeWidth="0.7"
@@ -241,29 +319,6 @@ export default function ScrollBuntingGamesSection({
               </g>
             )
           })}
-
-          <path
-            d={mainRopePath}
-            fill="none"
-            stroke="#8b9bb3"
-            strokeWidth="3.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            vectorEffect="non-scaling-stroke"
-            opacity="0.18"
-            filter="url(#rope-soften)"
-          />
-          <path
-            ref={pathRef}
-            d={mainRopePath}
-            fill="none"
-            stroke="#7687a2"
-            strokeWidth="2.05"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            vectorEffect="non-scaling-stroke"
-            opacity="0.94"
-          />
         </svg>
       </div>
     </section>

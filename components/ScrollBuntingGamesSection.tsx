@@ -88,32 +88,32 @@ const descriptionSections = [
     title: 'Logikkolympics',
     body:
       'Hvordan tenker man logisk når tiden går og laget har tre ulike teorier samtidig? Hvor raskt klarer man å se mønstre, finne system og lande et svar før de andre lagene? I Logikkolympics venter tre oppgaver hvor samarbeid, resonnering og litt konkurranseinstinkt fort blir viktigere enn man skulle tro.',
-    top: 1840,
-    left: 7,
+    top: 1980,
+    left: 17,
     width: 48,
   },
   {
     title: 'Sommelierlekene',
     body:
       'Hvor mye av vinsmaking handler egentlig om kunnskap, og hvor mye handler om å si ting med nok selvtillit? I Sommelierlekene blir det fort tydelig hvem som faktisk kan vin — og hvem som bare kan snakke om den.',
-    top: 2680,
-    left: 46,
+    top: 2600,
+    left: 37,
     width: 47,
   },
   {
     title: 'Kongen befaler',
     body:
       'Hvor kreativ blir man egentlig når oppgavene gir null mening ved første gjennomlesning? Og hvor langt er man villig til å strekke komfortsonen for noen ekstra poeng?',
-    top: 3480,
-    left: 7,
+    top: 3110,
+    left: 11,
     width: 48,
   },
   {
     title: 'MVP før midnatt',
     body:
       'Kan man selge hva som helst med riktig nettside og nok selvtillit? Hvor langt kommer man med sterke vibber, tvilsomme buzzwords og et godt design? I Vibbekode får lagene tildelt et produkt og skal lage den mest kreative nettsiden de klarer — før alt pitchepresenteres for resten på slutten av kvelden.',
-    top: 4280,
-    left: 46,
+    top: 3550,
+    left: 19,
     width: 47,
   },
 ] as const

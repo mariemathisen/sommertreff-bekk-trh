@@ -32,8 +32,12 @@
 -- -----------------------------------------------------------------------------
 create table if not exists teams (
   id         uuid        default gen_random_uuid() primary key,
-  name       text        not null,
-  created_at timestamptz default now()
+  name             text        not null,
+  members          text        default '',
+  shark_tank_theme text,
+  shark_tank_task  text,
+  locked           boolean     not null default false,
+  created_at       timestamptz default now()
 );
 
 -- -----------------------------------------------------------------------------
@@ -48,19 +52,40 @@ create table if not exists activities (
 );
 
 -- -----------------------------------------------------------------------------
+-- SUBTASKS (oppgaver)
+-- Some activities are broken into sub-tasks, each with their own max score.
+-- e.g. "Logistikkolympics" might have 3 oppgaver worth 10, 3 and 4 points.
+-- all_or_nothing = true means only 0 or max_points is valid (toggle scoring).
+-- Activities without subtask rows use flat scoring as before.
+-- -----------------------------------------------------------------------------
+create table if not exists subtasks (
+  id             uuid        default gen_random_uuid() primary key,
+  activity_id    uuid        references activities(id) on delete cascade not null,
+  name           text        not null,
+  max_points     integer     not null check (max_points > 0),
+  sort_order     integer     not null default 0,
+  all_or_nothing boolean     not null default false
+);
+
+-- -----------------------------------------------------------------------------
 -- SCORES
--- A log of every point award. Instead of storing a running total per team,
--- we store individual entries and sum them when displaying the scoreboard.
--- This gives us a full audit trail and lets us correct mistakes by deleting
--- a specific entry rather than editing a number.
+-- Each row records points awarded to a team.
+-- If subtask_id is set, the score belongs to a specific subtask of an activity.
+-- The unique index ensures one score per team per subtask (upsert pattern).
+-- If subtask_id is null, it's a flat score for an activity without subtasks.
 -- -----------------------------------------------------------------------------
 create table if not exists scores (
   id          uuid        default gen_random_uuid() primary key,
   team_id     uuid        references teams(id)      on delete cascade not null,
   activity_id uuid        references activities(id) on delete cascade not null,
+  subtask_id  uuid        references subtasks(id)   on delete cascade,
   points      integer     not null check (points >= 0),
   created_at  timestamptz default now()
 );
+
+-- One score per team per subtask (only for rows that have a subtask)
+create unique index if not exists scores_team_subtask_uniq
+  on scores (team_id, subtask_id) where subtask_id is not null;
 
 
 -- -----------------------------------------------------------------------------
@@ -70,6 +95,7 @@ create table if not exists scores (
 -- -----------------------------------------------------------------------------
 alter table teams      enable row level security;
 alter table activities enable row level security;
+alter table subtasks   enable row level security;
 alter table scores     enable row level security;
 
 -- Allow full access to all three tables for anyone with the anon key.
@@ -80,8 +106,35 @@ create policy "Public read/write on teams"
 create policy "Public read/write on activities"
   on activities for all using (true) with check (true);
 
+create policy "Public read/write on subtasks"
+  on subtasks for all using (true) with check (true);
+
 create policy "Public read/write on scores"
   on scores for all using (true) with check (true);
+
+
+-- -----------------------------------------------------------------------------
+-- MARIO KART MATCHES
+-- Tracks bonus Mario Kart matches between teams. Each team pair can play once.
+-- Flow: team_a challenges team_b → they play → either team reports the winner
+-- → the other team confirms → 2 points awarded to the winner.
+-- -----------------------------------------------------------------------------
+create table if not exists mario_kart_matches (
+  id              uuid        default gen_random_uuid() primary key,
+  team_a_id       uuid        references teams(id) on delete cascade not null,
+  team_b_id       uuid        references teams(id) on delete cascade not null,
+  winner_team_id  uuid        references teams(id) on delete cascade,
+  reported_by     uuid        references teams(id) on delete cascade,
+  confirmed       boolean     default false,
+  created_at      timestamptz default now(),
+  confirmed_at    timestamptz,
+  unique (team_a_id, team_b_id)
+);
+
+alter table mario_kart_matches enable row level security;
+
+create policy "Public read/write on mario_kart_matches"
+  on mario_kart_matches for all using (true) with check (true);
 
 
 -- -----------------------------------------------------------------------------
@@ -90,6 +143,7 @@ create policy "Public read/write on scores"
 -- changes, then forwards them to connected clients over WebSockets.
 -- You must enable real-time for each table in the Supabase dashboard:
 --   Dashboard → Database → Replication → supabase_realtime → add "scores"
+--   and "mario_kart_matches"
 -- (teams and activities don't need real-time since the scoreboard only
 --  re-fetches them when a score change arrives)
 -- -----------------------------------------------------------------------------

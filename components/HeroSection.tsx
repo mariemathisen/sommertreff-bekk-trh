@@ -3,7 +3,9 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { MotionConfig, motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { supabase } from '@/lib/supabase'
+import type { Team } from '@/types'
 
 type BirdConfig = {
   id: string
@@ -212,6 +214,27 @@ function PatchImage({ name }: PatchImageProps) {
 }
 
 export function HeroSection() {
+  const [teams, setTeams] = useState<Team[]>([])
+  const [scrolledPast, setScrolledPast] = useState(false)
+
+  useEffect(() => {
+    supabase
+      .from('teams')
+      .select('*')
+      .order('created_at')
+      .then(({ data }) => {
+        if (data) setTeams(data as Team[])
+      })
+  }, [])
+
+  useEffect(() => {
+    function handleScroll() {
+      setScrolledPast(window.scrollY > 200)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
   const smoothX = useSpring(mouseX, { stiffness: 45, damping: 18, mass: 0.6 })
@@ -229,7 +252,30 @@ export function HeroSection() {
   }, [])
 
   return (
-    <MotionConfig reducedMotion="never">
+    <>
+      {teams.length > 0 && (
+        <div
+          className="pointer-events-none fixed bottom-10 left-0 right-0 z-[9999] flex flex-col items-center gap-1 transition-opacity duration-500"
+          style={{ opacity: scrolledPast ? 0 : 1 }}
+        >
+          <span className="text-sm font-bold text-[#d8452e]">Finn laget ditt</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="64"
+            height="64"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#d8452e"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="animate-bounce drop-shadow-md"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+      )}
+      <MotionConfig reducedMotion="never">
       <section
         className="relative isolate min-h-screen overflow-hidden bg-[#d6e8f5]"
         onMouseMove={(event) => {
@@ -334,7 +380,27 @@ export function HeroSection() {
             />
           </div>
         </div>
+
+        {teams.length > 0 && (
+          <div className="relative z-50 px-4 pb-12 pt-8">
+            <div className="mx-auto max-w-md">
+              <h2 className="mb-4 text-center text-xl font-bold text-[#0b1525]">Lag</h2>
+              <div className="flex flex-col gap-2">
+                {teams.map((team, i) => (
+                  <Link
+                    key={team.id}
+                    href={`/lag/${team.id}`}
+                    className="rounded-xl bg-white/60 px-4 py-3 text-center font-medium text-[#0b1525] backdrop-blur-sm transition-colors hover:bg-white/80"
+                  >
+                    {team.name || `Gruppe ${i + 1}`}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </section>
-    </MotionConfig>
+      </MotionConfig>
+    </>
   )
 }

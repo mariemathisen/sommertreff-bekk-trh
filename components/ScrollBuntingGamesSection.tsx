@@ -69,17 +69,13 @@ const timetableColumnOffsets = timetableColumnWidths.reduce<number[]>((offsets, 
 
   return offsets
 }, [])
-const timetableHeaderColors = ['#f08e7e', '#aebddd', '#e6bc66', '#b8c0ac'] as const
-const timetableTimeColors = ['#f5d9cf', '#dde3ef', '#d9ddcf', '#f3e2c6', '#f4d8cf'] as const
 const timetableLineColor = '#243d5d'
 const timetableLineSoftColor = 'rgba(41, 70, 106, 0.12)'
 const timetableDashColor = 'rgba(164, 173, 188, 0.64)'
 const timetableTextColor = '#1f3552'
 const timetableHeaderInsetX = 11
 const timetableHeaderInsetY = 6
-const timetableHeaderRadius = 24
 const timetableTimeInsetX = 6
-const timetableTimeRadius = 14
 const timetableFontFamily =
   'Avenir Next Rounded, Avenir Next, Nunito Sans, Helvetica Neue, Arial, sans-serif'
 
@@ -137,16 +133,6 @@ type PennantPlacement = {
   x: number
   y: number
   angle: number
-  windRotation: number
-  attachOffset: number
-  hangOffset: number
-  swayRotation: number
-  swayDuration: number
-  swayDelay: number
-  floatX: number
-  floatY: number
-  floatDuration: number
-  floatDelay: number
   centerX: number
   centerY: number
   color: string
@@ -167,48 +153,8 @@ function noise(index: number, seed: number) {
   return fract(Math.sin(index * 12.9898 + seed * 78.233) * 43758.5453123)
 }
 
-function centeredNoise(index: number, seed: number) {
-  return noise(index, seed) * 2 - 1
-}
-
-function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max)
-}
-
-function normalizeAngle(angle: number) {
-  let normalized = angle
-
-  while (normalized <= -180) normalized += 360
-  while (normalized > 180) normalized -= 360
-
-  return normalized
-}
-
 function pennantColorAt(index: number) {
   return pennantPalette[index % pennantPalette.length]
-}
-
-function hasPennantOverlap(candidate: { centerX: number; centerY: number }, pennants: PennantPlacement[]) {
-  return pennants.some((pennant) => {
-    const dx = candidate.centerX - pennant.centerX
-    const dy = candidate.centerY - pennant.centerY
-
-    return (dx / 64) ** 2 + (dy / 82) ** 2 < 1
-  })
-}
-
-function hasPennantCrowding(
-  candidate: { x: number; y: number; centerX: number; centerY: number },
-  pennants: PennantPlacement[],
-) {
-  return pennants.some((pennant) => {
-    const ropeDx = candidate.x - pennant.x
-    const ropeDy = candidate.y - pennant.y
-    const centerDx = candidate.centerX - pennant.centerX
-    const centerDy = candidate.centerY - pennant.centerY
-
-    return (ropeDx / 88) ** 2 + (ropeDy / 122) ** 2 < 1 || (centerDx / 72) ** 2 + (centerDy / 94) ** 2 < 1
-  })
 }
 
 function hasNearbyRopeSegment(
@@ -286,76 +232,38 @@ export default function ScrollBuntingGamesSection({
     let index = 0
 
     while (distance < totalLength - 82) {
-      const colorIndex = index % pennantPalette.length
       const point = path.getPointAtLength(distance)
       const nearPrev = path.getPointAtLength(Math.max(0, distance - 7))
       const nearNext = path.getPointAtLength(Math.min(totalLength, distance + 7))
-      const farPrev = path.getPointAtLength(Math.max(0, distance - 30))
-      const farNext = path.getPointAtLength(Math.min(totalLength, distance + 30))
       const dx = nearNext.x - nearPrev.x
       const dy = nearNext.y - nearPrev.y
       const angle = (Math.atan2(dy, dx) * 180) / Math.PI
-      const ropeInfluence = clamp(angle * 0.14, -12, 12)
-      const naturalHang = clamp(
-        Math.sin(index * 0.58 + 1.1) * 9 +
-          Math.sin(index * 0.23 + 2.4) * 5 +
-          centeredNoise(index, 7) * 2.2,
-        -17,
-        17,
-      )
-      const windRotation = -angle + ropeInfluence + naturalHang
-      const hangRadians = (naturalHang * Math.PI) / 180
-      const centerX = point.x - Math.sin(hangRadians) * pennantHeight * 0.42
-      const centerY = point.y + Math.cos(hangRadians) * pennantHeight * 0.42
-      const farAngle = (Math.atan2(farNext.y - farPrev.y, farNext.x - farPrev.x) * 180) / Math.PI
-      const curvature = Math.abs(normalizeAngle(farAngle - angle))
-      const isTightCurve = curvature > 26
-      const hasCrowding = hasPennantCrowding({ x: point.x, y: point.y, centerX, centerY }, nextPennants)
+      const angleRad = (angle * Math.PI) / 180
+      const centerX = point.x - Math.sin(angleRad) * pennantHeight * 0.5
+      const centerY = point.y + Math.cos(angleRad) * pennantHeight * 0.5
+      const inClearance =
+        isInsideClearanceZone(point) || isInsideClearanceZone({ x: centerX, y: centerY })
       const hasRopeConflict = hasNearbyRopeSegment(path, totalLength, distance, {
         x: point.x,
         y: point.y,
         centerX,
         centerY,
       })
-      const shouldRenderPennant =
-        !isInsideClearanceZone(point) &&
-        !isInsideClearanceZone({ x: centerX, y: centerY }) &&
-        !hasRopeConflict
 
-      if (
-        shouldRenderPennant &&
-        !hasPennantOverlap({ centerX, centerY }, nextPennants) &&
-        !hasCrowding
-      ) {
+      if (!inClearance && !hasRopeConflict) {
         nextPennants.push({
           x: point.x,
           y: point.y,
           angle,
-          windRotation,
-          attachOffset: centeredNoise(index, 6) * 0.9,
-          hangOffset: 4.8 + noise(index, 14) * 2.2,
-          swayRotation: 5.2 + noise(index, 16) * 4.1,
-          swayDuration: 3.1 + noise(index, 17) * 1.8,
-          swayDelay: -noise(index, 18) * 6.5,
-          floatX: centeredNoise(index, 19) * 2.8,
-          floatY: centeredNoise(index, 20) * 3.6,
-          floatDuration: 3.7 + noise(index, 21) * 2.1,
-          floatDelay: -noise(index, 22) * 7.5,
           centerX,
           centerY,
-          color: pennantColorAt(colorIndex),
+          color: pennantColorAt(index),
           opacity: 0.92 + noise(index, 11) * 0.04,
           textureId: `pennant-texture-${index}`,
         })
       }
 
-      const spacing =
-        70 +
-        noise(index, 12) * 6 +
-        Math.min(curvature / 28, 1) * 14 +
-        (isTightCurve ? 8 : 0)
-
-      distance += spacing
+      distance += 130
       index += 1
     }
 
@@ -443,41 +351,14 @@ export default function ScrollBuntingGamesSection({
                     />
                   </pattern>
                 </defs>
-                <path
-                  d={`M 0 0 Q ${pennant.attachOffset * 0.45} ${pennant.hangOffset * 0.3} ${pennant.attachOffset} ${pennant.hangOffset + 3}`}
-                  fill="none"
+                <line
+                  x1="0" y1="-1.5" x2="0" y2="3"
                   stroke="rgba(118, 135, 162, 0.72)"
                   strokeWidth="1.2"
                   strokeLinecap="round"
                   vectorEffect="non-scaling-stroke"
                 />
-                <g
-                  transform={`translate(${pennant.attachOffset} ${pennant.hangOffset}) rotate(${pennant.windRotation})`}
-                >
-                  <animateTransform
-                    attributeName="transform"
-                    type="rotate"
-                    values={`${-pennant.swayRotation} 0 0; ${pennant.swayRotation} 0 0; ${-pennant.swayRotation} 0 0`}
-                    dur={`${pennant.swayDuration}s`}
-                    begin={`${pennant.swayDelay}s`}
-                    repeatCount="indefinite"
-                    additive="sum"
-                    calcMode="spline"
-                    keyTimes="0;0.5;1"
-                    keySplines="0.42 0 0.58 1;0.42 0 0.58 1"
-                  />
-                  <animateTransform
-                    attributeName="transform"
-                    type="translate"
-                    values={`0 0; ${pennant.floatX} ${pennant.floatY}; 0 0`}
-                    dur={`${pennant.floatDuration}s`}
-                    begin={`${pennant.floatDelay}s`}
-                    repeatCount="indefinite"
-                    additive="sum"
-                    calcMode="spline"
-                    keyTimes="0;0.5;1"
-                    keySplines="0.45 0 0.55 1;0.45 0 0.55 1"
-                  />
+                <g>
                   <path
                     d={pennantPath}
                     fill={pennant.color}
@@ -545,15 +426,6 @@ export default function ScrollBuntingGamesSection({
 
               return (
                 <g key={`timetable-header-${columnIndex}`}>
-                  <rect
-                    x={cellX + timetableHeaderInsetX}
-                    y={timetableY + timetableHeaderInsetY}
-                    width={headerWidth}
-                    height={headerHeight}
-                    rx={timetableHeaderRadius}
-                    fill={timetableHeaderColors[columnIndex]}
-                    fillOpacity="0.96"
-                  />
                   <text
                     x={headerCenterX}
                     y={headerCenterY}
@@ -649,17 +521,6 @@ export default function ScrollBuntingGamesSection({
 
                 return (
                   <g key={`timetable-cell-${rowIndex}-${columnIndex}`}>
-                    {isTimeColumn ? (
-                      <rect
-                        x={cellX + timetableTimeInsetX}
-                        y={rowY + 1.5}
-                        width={Math.max(56, cellWidth - timetableTimeInsetX * 2)}
-                        height={timetableBodyRowHeight - 3}
-                        rx={timetableTimeRadius}
-                        fill={timetableTimeColors[rowIndex % timetableTimeColors.length]}
-                        fillOpacity="0.94"
-                      />
-                    ) : null}
                     <text
                       x={textCenterX}
                       y={textCenterY}

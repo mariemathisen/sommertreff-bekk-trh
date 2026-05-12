@@ -2,11 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { AnimatePresence, LayoutGroup } from 'framer-motion'
+import { LayoutGroup } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import type { Team, Score } from '@/types'
-import { Podium, MobilePodium } from '@/components/scoreboard/Podium'
-import { LeaderboardRow } from '@/components/scoreboard/LeaderboardRow'
+import { RaceTrack } from '@/components/scoreboard/RaceTrack'
 
 type TeamWithPoints = Team & {
   points: number
@@ -85,63 +84,44 @@ export default function PoengoversiktPage() {
     return sorted
   }, [teams, scores])
 
-  const top3 = leaderboard.slice(0, 3)
-  const rest = leaderboard.slice(3)
-
   return (
-    <main className="min-h-screen bg-[#d6e8f5] px-4 py-8 md:px-6 md:py-12 text-[#0b1525]">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_20%,rgba(255,255,255,0.5),transparent)] pointer-events-none" />
+    <main className="min-h-screen bg-gradient-to-br from-[#0b1525] via-[#1a2744] to-[#0d2137] px-4 py-8 md:px-6 md:py-12 text-white">
+      {/* Animated background blobs */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-40 -left-40 h-80 w-80 rounded-full bg-purple-600/20 blur-3xl animate-blob" />
+        <div className="absolute top-1/3 -right-20 h-96 w-96 rounded-full bg-cyan-500/15 blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute -bottom-20 left-1/3 h-72 w-72 rounded-full bg-pink-500/15 blur-3xl animate-blob animation-delay-4000" />
+      </div>
 
-      <div className="relative mx-auto max-w-5xl">
+      <div className="relative mx-auto max-w-4xl">
         <Link
           href="/"
-          className="group fixed left-6 top-4 z-50 flex items-center gap-1.5 rounded-full bg-white/70 px-4 py-2 text-sm font-semibold text-[#d8452e] backdrop-blur-sm transition-all hover:bg-white hover:shadow-md hover:gap-2.5"
+          className="group fixed left-6 top-4 z-50 flex items-center gap-1.5 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md border border-white/20 transition-all hover:bg-white/20 hover:shadow-md hover:gap-2.5"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:-translate-x-0.5"><polyline points="15 18 9 12 15 6" /></svg>
           Forsiden
         </Link>
 
-        <div className="text-center mb-8 md:mb-12">
-          <h1
-            className="scoreboard-header text-5xl md:text-7xl lg:text-8xl font-black leading-none tracking-tight text-transparent"
-            style={{ WebkitTextStroke: '2px #d8452e' }}
-          >
-            Poengoversikt
+        <div className="text-center mb-10 md:mb-14">
+          <h1 className="scoreboard-header-v2 text-5xl md:text-7xl lg:text-8xl font-black leading-none tracking-tight">
+            POENGOVERSIKT
           </h1>
-          <p className="mt-3 text-lg md:text-xl text-[#44607a] font-medium">
-            Hvem leder konkurransen?
+          <p className="mt-4 text-lg md:text-xl text-white/60 font-medium tracking-wide">
+            Hvem tar ledelsen?
           </p>
         </div>
 
         {error && (
-          <p className="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">{error}</p>
+          <p className="mb-6 rounded-md border border-red-400/30 bg-red-500/20 px-4 py-2 text-sm text-red-200 backdrop-blur-sm">{error}</p>
         )}
 
         {leaderboard.length === 0 ? (
-          <div className="rounded-2xl bg-white/60 px-6 py-12 text-center text-[#5f7387] backdrop-blur-sm">
-            Ingen lag eller poeng registrert ennå.
+          <div className="rounded-2xl bg-white/10 px-6 py-12 text-center text-white/50 backdrop-blur-sm border border-white/10">
+            Ingen lag eller poeng registrert enda.
           </div>
         ) : (
           <LayoutGroup>
-            <Podium teams={top3} />
-            <MobilePodium teams={top3} />
-
-            {rest.length > 0 && (
-              <div className="mt-6 md:mt-10 flex flex-col gap-2 md:gap-3">
-                <AnimatePresence mode="popLayout">
-                  {rest.map((team, i) => (
-                    <LeaderboardRow
-                      key={team.id}
-                      id={team.id}
-                      rank={i + 4}
-                      name={team.name}
-                      points={team.points}
-                      delta={team.delta}
-                    />
-                  ))}
-                </AnimatePresence>
-              </div>
-            )}
+            <RaceTrack teams={leaderboard} />
           </LayoutGroup>
         )}
 

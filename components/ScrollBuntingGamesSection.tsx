@@ -76,8 +76,7 @@ const timetableTextColor = '#1f3552'
 const timetableHeaderInsetX = 11
 const timetableHeaderInsetY = 6
 const timetableTimeInsetX = 6
-const timetableFontFamily =
-  'Avenir Next Rounded, Avenir Next, Nunito Sans, Helvetica Neue, Arial, sans-serif'
+const timetableFontFamily = 'var(--font-geist-sans), sans-serif'
 
 const descriptionSections = [
   {
@@ -109,7 +108,7 @@ const descriptionSections = [
     body:
       'Kan man selge hva som helst med riktig nettside og nok selvtillit? Hvor langt kommer man med sterke vibber, tvilsomme buzzwords og et godt design? I Vibbekode får lagene tildelt et produkt og skal lage den mest kreative nettsiden de klarer — før alt pitchepresenteres for resten på slutten av kvelden.',
     top: 3550,
-    left: 19,
+    left: 15,
     width: 47,
   },
 ] as const
@@ -164,7 +163,7 @@ function hasNearbyRopeSegment(
   candidate: { x: number; y: number; centerX: number; centerY: number },
 ) {
   for (let sampleDistance = 0; sampleDistance <= totalLength; sampleDistance += 42) {
-    if (Math.abs(sampleDistance - candidateDistance) < 190) {
+    if (Math.abs(sampleDistance - candidateDistance) < 450) {
       continue
     }
 
@@ -174,7 +173,7 @@ function hasNearbyRopeSegment(
     const anchorDx = sample.x - candidate.x
     const anchorDy = sample.y - candidate.y
 
-    if ((dx / 96) ** 2 + (dy / 118) ** 2 < 1 || (anchorDx / 54) ** 2 + (anchorDy / 72) ** 2 < 1) {
+    if ((dx / 54) ** 2 + (dy / 68) ** 2 < 1 || (anchorDx / 30) ** 2 + (anchorDy / 42) ** 2 < 1) {
       return true
     }
   }
@@ -241,16 +240,10 @@ export default function ScrollBuntingGamesSection({
       const angleRad = (angle * Math.PI) / 180
       const centerX = point.x - Math.sin(angleRad) * pennantHeight * 0.5
       const centerY = point.y + Math.cos(angleRad) * pennantHeight * 0.5
-      const inClearance =
-        isInsideClearanceZone(point) || isInsideClearanceZone({ x: centerX, y: centerY })
-      const hasRopeConflict = hasNearbyRopeSegment(path, totalLength, distance, {
-        x: point.x,
-        y: point.y,
-        centerX,
-        centerY,
-      })
+      const inLoop =
+        point.x > 760 && point.x < 900 && point.y > 2040 && point.y < 2260
 
-      if (!inClearance && !hasRopeConflict) {
+      if (!inLoop) {
         nextPennants.push({
           x: point.x,
           y: point.y,
@@ -421,8 +414,10 @@ export default function ScrollBuntingGamesSection({
               const cellWidth = timetableColumnWidths[columnIndex]
               const headerWidth = Math.max(56, cellWidth - timetableHeaderInsetX * 2)
               const headerHeight = timetableHeaderHeight - timetableHeaderInsetY * 2
-              const headerCenterX = cellX + timetableHeaderInsetX + headerWidth / 2
-              const headerCenterY = timetableY + timetableHeaderInsetY + headerHeight / 2
+              const headerRectX = cellX + timetableHeaderInsetX
+              const headerRectY = timetableY + timetableHeaderInsetY
+              const headerCenterX = headerRectX + headerWidth / 2
+              const headerCenterY = headerRectY + headerHeight / 2
 
               return (
                 <g key={`timetable-header-${columnIndex}`}>
@@ -430,52 +425,20 @@ export default function ScrollBuntingGamesSection({
                     x={headerCenterX}
                     y={headerCenterY}
                     fill={timetableTextColor}
-                    fontFamily={timetableFontFamily}
-                    fontSize={columnIndex === 0 ? 10.4 : 10.8}
-                    fontWeight="590"
-                    letterSpacing="0.03em"
+                    fontFamily='Georgia, "Times New Roman", serif'
+                    fontSize="15"
+                    fontWeight="900"
+                    letterSpacing="0.01em"
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    opacity="0.98"
                   >
-                    {cell.toUpperCase()}
+                    {cell}
                   </text>
                 </g>
               )
             })}
 
-            {Array.from({ length: timetableColumns - 1 }).map((_, separatorIndex) => {
-              const separatorX =
-                timetableX + timetableColumnOffsets[separatorIndex] + timetableColumnWidths[separatorIndex]
-              const verticalPath = createCurvedVerticalPath(
-                separatorX,
-                timetableY + timetableHeaderHeight,
-                timetableY + timetableHeight,
-                2.8 + separatorIndex * 0.3,
-              )
 
-              return (
-                <g key={`timetable-column-separator-${separatorIndex}`}>
-                  <path
-                    d={verticalPath}
-                    fill="none"
-                    stroke={timetableLineSoftColor}
-                    strokeWidth="2.8"
-                    strokeLinecap="round"
-                    vectorEffect="non-scaling-stroke"
-                    filter="url(#timetable-soften)"
-                  />
-                  <path
-                    d={verticalPath}
-                    fill="none"
-                    stroke={timetableLineColor}
-                    strokeWidth="1.08"
-                    strokeLinecap="round"
-                    vectorEffect="non-scaling-stroke"
-                  />
-                </g>
-              )
-            })}
 
             {Array.from({ length: Math.max(0, timetableBodyRows - 1) }).map((_, rowIndex) => {
               const separatorY =
@@ -521,17 +484,29 @@ export default function ScrollBuntingGamesSection({
 
                 return (
                   <g key={`timetable-cell-${rowIndex}-${columnIndex}`}>
+                    {!isTimeColumn && (
+                      <rect
+                        x={cellX + 5}
+                        y={rowY + 3}
+                        width={cellWidth - 10}
+                        height={timetableBodyRowHeight - 6}
+                        rx="7"
+                        fill="rgba(255, 255, 255, 0.48)"
+                        stroke="rgba(36, 61, 93, 0.12)"
+                        strokeWidth="0.8"
+                      />
+                    )}
                     <text
                       x={textCenterX}
                       y={textCenterY}
                       fill={timetableTextColor}
                       fontFamily={timetableFontFamily}
-                      fontSize={isTimeColumn ? 11.6 : columnIndex === 3 ? 10.8 : 11.2}
-                      fontWeight={isTimeColumn ? '580' : '530'}
+                      fontSize={isTimeColumn ? 11.6 : columnIndex === 3 ? 10.2 : 11.2}
+                      fontWeight={isTimeColumn ? '580' : '620'}
                       letterSpacing={isTimeColumn ? '0.01em' : '0.004em'}
                       textAnchor="middle"
                       dominantBaseline="middle"
-                      opacity={isTimeColumn ? '0.98' : '0.94'}
+                      opacity={isTimeColumn ? '0.98' : '0.96'}
                     >
                       {cell}
                     </text>

@@ -72,7 +72,7 @@ export default function DagensAktiviteterPage() {
           Dagens utfordringer
         </h1>
         <p className="mt-10 max-w-3xl text-xl leading-relaxed text-[#0b1525] sm:text-2xl">
-          Nysgjerrig på hva vi skal gjennom i dag? Følg snoren da vel
+          Nysgjerrig på hva vi skal gjennom i dag? Følg snoren da vel!
         </p>
       </div>
     </main>

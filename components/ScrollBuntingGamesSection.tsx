@@ -52,7 +52,7 @@ const pennantPath = `
   .trim()
 
 const timetableCells = [
-  ['Tid', 'Videoloftet', 'Sofaloftet', 'Selvgående'],
+  ['Tid', 'Videoloftet', 'Sofaloftet', 'Vrimle'],
   ['18:30-18:45', 'Gr 1', 'Gr 2', 'Gr 3, 4, 5, 6'],
   ['18:50-19:05', 'Gr 3', 'Gr 4', 'Gr 1, 2, 5, 6'],
   ['19:10-19:25', 'Gr 5', 'Gr 6', 'Gr 1, 2, 3, 4'],

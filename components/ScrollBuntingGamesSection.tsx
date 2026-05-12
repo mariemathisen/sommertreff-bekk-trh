@@ -620,11 +620,8 @@ export default function ScrollBuntingGamesSection({
             className="absolute z-10 max-w-[92vw] rounded-[1.75rem] bg-[#d6e8f5]/90 p-4 text-left text-[#0b1525] shadow-[0_14px_38px_rgba(90,118,150,0.08)] backdrop-blur-[2px] md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none"
             style={{ top: `${section.top}px`, left: `${section.left}%`, width: `${section.width}%` }}
           >
-            <p className="text-[0.72rem] font-semibold uppercase tracking-[0.26em] text-[#50667f] sm:text-xs">
-              Gren {String(index + 1).padStart(2, '0')}
-            </p>
             <h2
-              className="mt-3 text-2xl font-black leading-none tracking-tight sm:text-3xl md:text-[2.7rem]"
+              className="text-2xl font-black leading-none tracking-tight sm:text-3xl md:text-[2.7rem]"
               style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
             >
               {section.title}

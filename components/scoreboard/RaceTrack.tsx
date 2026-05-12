@@ -80,26 +80,34 @@ function getStyle(rank: number) {
 export function RaceTrack({ teams }: RaceTrackProps) {
   if (teams.length === 0) return null
 
-  const maxPoints = Math.max(...teams.map((t) => t.points), 1)
+  const MAX_POSSIBLE = 50
+  const ceiling = Math.max(MAX_POSSIBLE, ...teams.map((t) => t.points))
 
   return (
     <div className="flex flex-col gap-3 md:gap-4">
       <AnimatePresence mode="popLayout">
         {teams.map((team, i) => {
           const style = getStyle(i)
-          const pct = Math.max((team.points / maxPoints) * 100, 8)
+          const pct = Math.max((team.points / ceiling) * 100, 8)
           const isLeader = i === 0 && team.points > 0
+          const leaderJustScored = isLeader && team.delta != null && team.delta > 0
 
           return (
             <motion.div
               key={team.id}
               layout
               layoutId={`race-${team.id}`}
-              className="relative overflow-hidden rounded-2xl bg-white/80 backdrop-blur-sm"
+              className={`relative overflow-hidden rounded-2xl bg-white/80 backdrop-blur-sm ${leaderJustScored ? 'leader-flash' : ''}`}
               initial={{ opacity: 0, x: -40, scale: 0.95 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
+              animate={leaderJustScored
+                ? { opacity: 1, x: [0, -6, 6, -4, 4, -2, 2, 0], scale: 1 }
+                : { opacity: 1, x: 0, scale: 1 }
+              }
               exit={{ opacity: 0, x: 40, scale: 0.95 }}
-              transition={{ type: 'spring', stiffness: 100, damping: 18, mass: 0.8 }}
+              transition={leaderJustScored
+                ? { x: { duration: 0.6, ease: 'easeInOut' }, type: 'spring', stiffness: 100, damping: 18, mass: 0.8 }
+                : { type: 'spring', stiffness: 100, damping: 18, mass: 0.8 }
+              }
               style={isLeader ? { boxShadow: style.glow } : undefined}
             >
               {/* Top section: rank badge, name, score */}

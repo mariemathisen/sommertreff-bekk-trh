@@ -85,38 +85,36 @@ export default function PoengoversiktPage() {
   }, [teams, scores])
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[#0b1525] via-[#1a2744] to-[#0d2137] px-4 py-8 md:px-6 md:py-12 text-white">
-      {/* Animated background blobs */}
+    <main className="min-h-screen bg-[#d6e8f5] px-4 py-8 md:px-6 md:py-12 text-[#0b1525]">
+      {/* Soft radial glow matching hero */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 -left-40 h-80 w-80 rounded-full bg-purple-600/20 blur-3xl animate-blob" />
-        <div className="absolute top-1/3 -right-20 h-96 w-96 rounded-full bg-cyan-500/15 blur-3xl animate-blob animation-delay-2000" />
-        <div className="absolute -bottom-20 left-1/3 h-72 w-72 rounded-full bg-pink-500/15 blur-3xl animate-blob animation-delay-4000" />
+        <div className="absolute inset-0 bg-[radial-gradient(80%_58%_at_50%_12%,rgba(255,255,255,0.6),rgba(255,255,255,0))]" />
       </div>
 
       <div className="relative mx-auto max-w-4xl">
         <Link
           href="/"
-          className="group fixed left-6 top-4 z-50 flex items-center gap-1.5 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md border border-white/20 transition-all hover:bg-white/20 hover:shadow-md hover:gap-2.5"
+          className="group fixed left-6 top-4 z-50 flex items-center gap-1.5 rounded-full bg-white/60 px-4 py-2 text-sm font-semibold text-[#0b1525] backdrop-blur-md border border-white/40 transition-all hover:bg-white/80 hover:shadow-md hover:gap-2.5"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:-translate-x-0.5"><polyline points="15 18 9 12 15 6" /></svg>
           Forsiden
         </Link>
 
         <div className="text-center mb-10 md:mb-14">
-          <h1 className="scoreboard-header-v2 text-5xl md:text-7xl lg:text-8xl font-black leading-none tracking-tight">
-            POENGOVERSIKT
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif italic font-normal leading-none tracking-tight text-[#d8452e]">
+            Poengoversikt
           </h1>
-          <p className="mt-4 text-lg md:text-xl text-white/60 font-medium tracking-wide">
-            Hvem tar ledelsen?
+          <p className="mt-8 rounded-xl bg-white/60 backdrop-blur-sm border border-white/40 px-5 py-4 text-sm md:text-base text-[#0b1525]/70 text-center leading-relaxed">
+            Her kan dere følge med underveis! Poengene fra aktivitet 1, 2 og Mario Kart oppdateres fortløpende. Aktivitet 3 og Vibekode X Shark-tank avsløres til slutt — så ingenting er avgjort ennå!
           </p>
         </div>
 
         {error && (
-          <p className="mb-6 rounded-md border border-red-400/30 bg-red-500/20 px-4 py-2 text-sm text-red-200 backdrop-blur-sm">{error}</p>
+          <p className="mb-6 rounded-md border border-red-300 bg-red-100/60 px-4 py-2 text-sm text-red-700 backdrop-blur-sm">{error}</p>
         )}
 
         {leaderboard.length === 0 ? (
-          <div className="rounded-2xl bg-white/10 px-6 py-12 text-center text-white/50 backdrop-blur-sm border border-white/10">
+          <div className="rounded-2xl bg-white/60 px-6 py-12 text-center text-[#0b1525]/50 backdrop-blur-sm border border-white/40">
             Ingen lag eller poeng registrert enda.
           </div>
         ) : (

@@ -306,22 +306,23 @@ export default function TeamPage() {
         {team?.locked && team.shark_tank_theme && groupNumber >= 1 && groupNumber <= 6 && (() => {
           // Schedule based on the rotation grid
           // Each round: which groups are at A1, A2, and A3
-          const rounds: { time: string; a1?: number; a2?: number }[] = [
+          const rounds: { time: string; a1?: number; a2?: number; isA3?: boolean }[] = [
             { time: '18:30–18:45', a1: 1, a2: 2 },
             { time: '18:50–19:05', a1: 3, a2: 4 },
             { time: '19:10–19:25', a1: 5, a2: 6 },
             { time: '19:30–19:45', a1: 2, a2: 1 },
             { time: '19:50–20:05', a1: 4, a2: 3 },
             { time: '20:10–20:25', a1: 6, a2: 5 },
-            { time: '20:30–20:45', a1: 1, a2: 2 },
-            { time: '20:50–21:05', a1: 3, a2: 4 },
-            { time: '21:10–21:25', a1: 5, a2: 6 },
+            { time: '20:30–20:45', a1: 1, a2: 2, isA3: true },
+            { time: '20:50–21:05', a1: 3, a2: 4, isA3: true },
+            { time: '21:10–21:25', a1: 5, a2: 6, isA3: true },
           ]
 
           const g = groupNumber
           const slots = rounds.map((r) => {
-            if (r.a1 === g) return { time: r.time, label: 'Aktivitet', room: 'Videoloftet', type: 'busy' as const }
-            if (r.a2 === g) return { time: r.time, label: 'Aktivitet', room: 'Sofaloftet', type: 'busy' as const }
+            if (r.isA3 && (r.a1 === g || r.a2 === g)) return { time: r.time, label: 'Aktivitet 3', room: 'Videoloftet', type: 'busy' as const }
+            if (r.a1 === g) return { time: r.time, label: 'Aktivitet 1', room: 'Videoloftet', type: 'busy' as const }
+            if (r.a2 === g) return { time: r.time, label: 'Aktivitet 2', room: 'Sofaloftet', type: 'busy' as const }
             return { time: r.time, label: 'Shark Tank-arbeid', room: 'Loftet', type: 'free' as const }
           })
 
@@ -610,6 +611,31 @@ export default function TeamPage() {
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:-translate-x-0.5"><polyline points="15 18 9 12 15 6" /></svg>
           Forsiden
+        </Link>
+        <Link
+          href="/poengoversikt"
+          aria-label="Gå til poengoversikt"
+          className="group fixed z-50 block rotate-12"
+          style={{ right: 'clamp(10px, 5vw, 72px)', top: 'clamp(60px, 10vh, 120px)' }}
+        >
+          <div className="relative overflow-hidden" style={{ width: 'clamp(135px, 20vw, 240px)', height: 'clamp(135px, 20vw, 240px)' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/poengoversikt.png"
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+              className="pointer-events-none block h-full w-full object-contain transition-opacity duration-150 group-hover:opacity-0"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/poengoversikt-hovered.png"
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+              className="pointer-events-none absolute inset-0 block h-full w-full object-contain opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+            />
+          </div>
         </Link>
       </div>
     </main>

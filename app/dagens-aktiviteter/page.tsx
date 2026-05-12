@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import ScrollBuntingGamesSection from '@/components/ScrollBuntingGamesSection'
+import ScrollBuntingGamesSection, { scrollBuntingViewHeight } from '@/components/ScrollBuntingGamesSection'
 
 export default function DagensAktiviteterPage() {
   const backLabel = 'TILBAKE TIL FORSIDEN'
@@ -17,7 +17,10 @@ export default function DagensAktiviteterPage() {
   let unitCursor = 0
 
   return (
-    <main className="relative min-h-screen overflow-x-clip bg-[#d6e8f5] px-6 py-20 pb-1150 text-[#0b1525] sm:py-28">
+    <main
+      className="relative overflow-x-clip bg-[#d6e8f5] px-6 py-20 text-[#0b1525] sm:py-28"
+      style={{ minHeight: `${scrollBuntingViewHeight}px` }}
+    >
       <ScrollBuntingGamesSection className="absolute inset-x-0 top-0 z-0" />
 
       <Link

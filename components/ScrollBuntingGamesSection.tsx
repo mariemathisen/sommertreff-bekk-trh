@@ -471,13 +471,7 @@ export default function ScrollBuntingGamesSection({
             ))}
           </g>
 
-          <motion.g
-            aria-hidden
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 0.92, y: 0 }}
-            viewport={{ once: true, amount: 0.1 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          >
+          <g aria-hidden opacity="0.92">
             <path
               d={createCurvedHorizontalPath(
                 timetableX + 1,
@@ -613,7 +607,7 @@ export default function ScrollBuntingGamesSection({
                 )
               })
             })}
-          </motion.g>
+          </g>
         </motion.svg>
 
         {descriptionSections.map((section, index) => (

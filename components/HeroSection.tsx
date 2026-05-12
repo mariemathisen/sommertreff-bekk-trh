@@ -258,7 +258,7 @@ export function HeroSection() {
           className="pointer-events-none fixed bottom-10 left-0 right-0 z-[9999] flex flex-col items-center gap-1 transition-opacity duration-500"
           style={{ opacity: scrolledPast ? 0 : 1 }}
         >
-          <span className="text-sm font-bold text-[#d8452e]">Finn laget ditt</span>
+          <span className="text-3xl font-serif italic text-[#d8452e]">Finn laget ditt</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="64"
@@ -384,13 +384,13 @@ export function HeroSection() {
         {teams.length > 0 && (
           <div className="relative z-50 px-4 pb-12 pt-8">
             <div className="mx-auto max-w-md">
-              <h2 className="mb-4 text-center text-xl font-bold text-[#0b1525]">Lag</h2>
-              <div className="flex flex-col gap-2">
+              <h2 className="mb-4 text-center text-3xl font-serif italic text-[#d8452e]">Finn laget ditt</h2>
+              <div className="grid grid-cols-2 gap-2">
                 {teams.map((team, i) => (
                   <Link
                     key={team.id}
                     href={`/lag/${team.id}`}
-                    className="rounded-xl bg-white/60 px-4 py-3 text-center font-medium text-[#0b1525] backdrop-blur-sm transition-colors hover:bg-white/80"
+                    className="rounded-xl bg-white/60 px-4 py-3 text-center font-serif italic text-lg text-[#0b1525] backdrop-blur-sm transition-colors hover:bg-white/80 hover:text-[#d8452e]"
                   >
                     {team.name || `Gruppe ${i + 1}`}
                   </Link>

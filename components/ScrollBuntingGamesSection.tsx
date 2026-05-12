@@ -23,6 +23,9 @@ const mainRopePath = `
   C 978 2924, 932 3258, 788 3440
   C 660 3586, 700 3746, 850 3842
   C 938 3898, 860 3980, 604 4026
+  C 570 4044, 536 4060, 522 4082
+  C 506 4108, 512 4130, 530 4138
+  C 546 4144, 558 4136, 560 4122
 `
   .replace(/\s+/g, ' ')
   .trim()
@@ -242,8 +245,10 @@ export default function ScrollBuntingGamesSection({
       const centerY = point.y + Math.cos(angleRad) * pennantHeight * 0.5
       const inLoop =
         point.x > 760 && point.x < 900 && point.y > 2040 && point.y < 2260
+      const inCurl =
+        point.x > 500 && point.x < 650 && point.y > 4050 && point.y < 4180
 
-      if (!inLoop) {
+      if (!inLoop && !inCurl) {
         nextPennants.push({
           x: point.x,
           y: point.y,
@@ -303,6 +308,92 @@ export default function ScrollBuntingGamesSection({
             vectorEffect="non-scaling-stroke"
             opacity="0.94"
           />
+          <g aria-hidden>
+            <path
+              d="M 560 4122 C 552 4116, 548 4132, 560 4144 C 574 4158, 592 4148, 588 4132 C 584 4116, 566 4112, 560 4122"
+              fill="none"
+              stroke="#8b9bb3"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
+              opacity="0.18"
+              filter="url(#rope-soften)"
+            />
+            <path
+              d="M 562 4124 C 574 4112, 594 4120, 596 4138 C 598 4154, 582 4162, 568 4154 C 554 4146, 552 4128, 562 4124"
+              fill="none"
+              stroke="#8b9bb3"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
+              opacity="0.18"
+              filter="url(#rope-soften)"
+            />
+            <path
+              d="M 556 4134 C 566 4124, 584 4124, 592 4134 C 600 4144, 590 4156, 574 4156 C 560 4156, 550 4144, 556 4134"
+              fill="none"
+              stroke="#8b9bb3"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
+              opacity="0.18"
+              filter="url(#rope-soften)"
+            />
+            <path
+              d="M 592 4148 C 606 4150, 622 4160, 630 4174"
+              fill="none"
+              stroke="#8b9bb3"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
+              opacity="0.18"
+              filter="url(#rope-soften)"
+            />
+            <path
+              d="M 560 4122 C 552 4116, 548 4132, 560 4144 C 574 4158, 592 4148, 588 4132 C 584 4116, 566 4112, 560 4122"
+              fill="none"
+              stroke="#7687a2"
+              strokeWidth="2.05"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
+              opacity="0.94"
+            />
+            <path
+              d="M 562 4124 C 574 4112, 594 4120, 596 4138 C 598 4154, 582 4162, 568 4154 C 554 4146, 552 4128, 562 4124"
+              fill="none"
+              stroke="#7687a2"
+              strokeWidth="2.05"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
+              opacity="0.94"
+            />
+            <path
+              d="M 556 4134 C 566 4124, 584 4124, 592 4134 C 600 4144, 590 4156, 574 4156 C 560 4156, 550 4144, 556 4134"
+              fill="none"
+              stroke="#7687a2"
+              strokeWidth="2.05"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
+              opacity="0.94"
+            />
+            <path
+              d="M 592 4148 C 606 4150, 622 4160, 630 4174"
+              fill="none"
+              stroke="#7687a2"
+              strokeWidth="2.05"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
+              opacity="0.94"
+            />
+          </g>
 
           {pennants.map((pennant, index) => {
             const leftBase = -pennantWidth * 0.5

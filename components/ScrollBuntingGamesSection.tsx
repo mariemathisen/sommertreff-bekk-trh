@@ -95,6 +95,7 @@ const timetableFontFamily = 'var(--font-geist-sans), sans-serif'
 const descriptionSections = [
   {
     title: 'Logikkolympics',
+    slug: 'logikkolympics',
     body:
       'Hvordan tenker man logisk når tiden går og laget har tre ulike teorier samtidig? Hvor raskt klarer man å se mønstre, finne system og lande et svar før de andre lagene? I Logikkolympics venter tre oppgaver hvor samarbeid, resonnering og litt konkurranseinstinkt fort blir viktigere enn man skulle tro.',
     top: 1980,
@@ -103,6 +104,7 @@ const descriptionSections = [
   },
   {
     title: 'Sommelierlekene',
+    slug: 'sommelierlekene',
     body:
       'Hvor mye av vinsmaking handler egentlig om kunnskap, og hvor mye handler om å si ting med nok selvtillit? I Sommelierlekene blir det fort tydelig hvem som faktisk kan vin og hvem som bare kan snakke om den.',
     top: 2600,
@@ -111,6 +113,7 @@ const descriptionSections = [
   },
   {
     title: 'Kongen befaler',
+    slug: 'kongen-befaler',
     body:
       'Hvor kreativ blir man egentlig når oppgavene gir null mening ved første gjennomlesning? Og hvor langt er man villig til å strekke komfortsonen for noen ekstra poeng?',
     top: 3110,
@@ -119,8 +122,9 @@ const descriptionSections = [
   },
   {
     title: 'MVP før midnatt',
+    slug: 'mvp-for-midnatt',
     body:
-      'Kan man selge hva som helst med riktig nettside og nok selvtillit? Hvor langt kommer man med sterke vibber, tvilsomme buzzwords og et godt design? I Vibbekode får lagene tildelt et produkt og skal lage den mest kreative nettsiden de klarer før alt pitchepresenteres for resten på slutten av kvelden.',
+      'Kan man selge hva som helst med riktig nettside og nok selvtillit? Hvor langt kommer man med sterke vibber, tvilsomme buzzwords og et godt design? I MVP før midnatt får dere tildelt et produkt og skal lage den mest kreative nettsiden dere klarer før alt pitchepresenteres for resten på slutten av kvelden.',
     top: 3550,
     left: 15,
     width: 47,
@@ -613,6 +617,7 @@ export default function ScrollBuntingGamesSection({
         {descriptionSections.map((section, index) => (
           <motion.article
             key={section.title}
+            id={section.slug}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3, margin: '0px 0px -12% 0px' }}
